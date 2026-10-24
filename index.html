@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studio Konten Affiliate</title>
+<style>
+:root{--bg:#eef5ee;--card:#fbfefb;--ink:#1f2d23;--muted:#5f7366;--acc:#3a8558;--soft:#7fc8a0;--line:#9dbba6;--chip:#e1eee4;--warn:#b45309;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a13;--card:#17241b;--ink:#e6f1e8;--muted:#9bb2a1;--acc:#5fbf86;--soft:#2f6b49;--line:#2f4a38;--chip:#1f3326;--warn:#f0b35a}}
+:root[data-theme="dark"]{--bg:#101a13;--card:#17241b;--ink:#e6f1e8;--muted:#9bb2a1;--acc:#5fbf86;--soft:#2f6b49;--line:#2f4a38;--chip:#1f3326;--warn:#f0b35a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+header{padding:18px 24px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:20px}header p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:22px;max-width:1080px;margin:0 auto;padding:22px}
+@media(max-width:860px){.cols,.cols.ed{grid-template-columns:1fr}.prev{order:-1}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:20px}
+h2{font-size:15px;margin:0 0 12px}
+.lbl{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin:14px 0 5px}
+.lbl:first-of-type{margin-top:0}
+.count{color:var(--muted);font-weight:400}.count.over{color:#c0392b;font-weight:700}
+input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:150px;resize:vertical}
+:focus-visible{outline:3px solid var(--soft);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chips button,.btn{border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:6px 11px;border-radius:999px;font:inherit;font-size:13px;cursor:pointer}
+.chips button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn.main{background:var(--acc);color:#fff;border-color:var(--acc);border-radius:10px;padding:11px 14px;font-weight:600;width:100%;margin-top:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.chk label{display:flex;gap:9px;align-items:flex-start;font-size:13px;margin:7px 0}
+.chk input{width:auto;margin-top:3px}
+.item{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.item.due{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--card))}
+.item.done{opacity:.6}
+.item b{display:block}.item small{color:var(--muted)}
+.item pre{margin:8px 0;white-space:pre-wrap;word-break:break-word;font:inherit;font-size:13px;max-height:84px;overflow:hidden;color:var(--muted)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--acc);color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+
+.cols[hidden]{display:none}
+.cols.ed{grid-template-columns:minmax(0,1fr) 300px;max-width:1000px}
+.shell{display:grid;grid-template-columns:200px minmax(0,1fr);align-items:start}
+.side{position:sticky;top:0;display:flex;flex-direction:column;gap:6px;padding:18px 12px;border-right:1px solid var(--line);min-height:calc(100vh - 80px)}
+.side .lb{font-size:11px;color:var(--muted);font-weight:600;padding:0 10px 4px}
+.tab{text-align:left;border:0;background:none;color:var(--ink);padding:10px 12px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
+.tab:hover{background:var(--chip)}
+.tab.on{background:var(--acc);color:#fff}
+@media(max-width:860px){.shell{grid-template-columns:1fr}.side{flex-direction:row;overflow-x:auto;min-height:0;border-right:0;border-bottom:1px solid var(--line);padding:10px 14px;position:static}.side .lb{display:none}}
+input[type=range]{padding:0;border:0;background:none;accent-color:var(--acc)}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:22px 12px;text-align:center;cursor:pointer;font-size:13px}
+.drop.drag{background:var(--chip)}
+canvas{width:100%;aspect-ratio:9/16;background:#000;border-radius:18px;border:2px solid var(--line);display:block;position:sticky;top:12px}
+ol{margin:0;padding-left:20px;font-size:13px}ol li{margin:5px 0}
+.err{color:#c0392b;font-size:13px;min-height:18px}
+#pEd .btn.main{width:auto;margin-top:0;padding:8px 13px}
+#pEd .acts{margin-top:10px}
+.vrow{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.vrow.ok{opacity:.65}
+.vrow b{display:block}.vrow small{color:var(--muted)}
+.vrow pre{margin:8px 0;white-space:pre-wrap;word-break:break-word;font:inherit;font-size:13px;max-height:72px;overflow:hidden;color:var(--muted)}
+.vrow select{width:auto;padding:6px 10px;font-size:13px}
+</style>
+</head>
+<body>
+<header><h1>Studio Konten Affiliate</h1><p>Susun caption, skrip, dan jadwal, lalu rapikan video mentahmu. Prototipe: data tersimpan di browser ini saja.</p></header>
+<div class="shell"><nav class="side" aria-label="Modul"><div class="lb">Modul</div><button class="tab on" type="button" data-t="pPlan">Naskah &amp; Jadwal</button><button class="tab" type="button" data-t="pEd">Editor Video</button><button class="tab" type="button" data-t="pVar">Variasi Konten</button></nav><div class="content">
+<div class="cols" id="pPlan">
+<div>
+<section class="card">
+  <h2>1. Info produk</h2>
+  <div class="lbl"><label for="nama">Nama produk</label></div>
+  <input id="nama" placeholder="Contoh: Serum wajah niacinamide">
+  <div class="acts" style="margin-top:8px;align-items:center"><button class="btn" id="autoBtn" type="button">Isi keunggulan otomatis</button><span class="hint" id="auto" style="margin:0"></span></div>
+  <div class="lbl"><label for="poin">Keunggulan (otomatis, bisa diedit)</label></div>
+  <textarea id="poin" style="min-height:74px" placeholder="Ringan di kulit&#10;Cepat meresap&#10;Ukuran praktis"></textarea>
+  <div class="lbl"><label for="cta">Ajakan (CTA)</label></div>
+  <input id="cta" value="Cek keranjang kuning di video ini ya.">
+</section>
+
+<section class="card">
+  <h2>2. Caption</h2>
+  <div class="lbl">Gaya caption</div>
+  <div class="chips" id="gaya"></div>
+  <div class="lbl"><label for="caption">Caption</label><span class="count" id="cC">0/2200</span></div>
+  <textarea id="caption" placeholder="Pilih gaya di atas atau tulis sendiri..."></textarea>
+  <button class="btn main" id="gen" type="button" style="margin-top:10px">Buat caption dari info produk</button>
+
+  <div class="lbl" style="margin-top:18px">Tagar rekomendasi <span class="count" id="cH">0 tagar</span></div>
+  <div class="chips" id="tags"></div>
+  <div class="hint">Cukup 3 sampai 5 tagar yang relevan. Tagar umum seperti #fyp boleh, tapi jangan berlebihan.</div>
+</section>
+
+<section class="card">
+  <h2>3. Skrip video</h2>
+  <div class="lbl">Durasi</div>
+  <div class="chips" id="dur"></div>
+  <button class="btn main" id="genS" type="button" style="margin-top:10px">Buat skrip dari info produk</button>
+  <div class="lbl"><label for="skrip">Skrip (bisa diedit)</label></div>
+  <textarea id="skrip" style="min-height:240px" placeholder="Isi info produk, pilih gaya caption dan durasi, lalu buat skrip. Hasilnya berisi adegan, visual, dan kalimat yang diucapkan."></textarea>
+  <div class="acts" style="margin-top:8px"><button class="btn" id="cpS" type="button">Salin skrip</button></div>
+  <div class="hint">Gaya skrip mengikuti gaya caption di langkah 2.</div>
+</section>
+
+<section class="card">
+  <h2>4. Jadwal</h2>
+  <div class="row">
+    <div><div class="lbl"><label for="tgl">Tanggal</label></div><input type="date" id="tgl"></div>
+    <div><div class="lbl"><label for="jam">Jam</label></div><input type="time" id="jam" value="19:00"></div>
+  </div>
+  <div class="lbl">Pilihan jam cepat</div>
+  <div class="chips" id="jams"></div>
+  <div class="hint">Ini jam contoh saat orang umumnya aktif. Cek statistik di akun TikTok-mu untuk jam terbaik.</div>
+  <div class="chk" style="margin-top:14px">
+    <div class="lbl">Cek sebelum posting</div>
+    <label><input type="checkbox" class="ck"> Video berukuran vertikal 9:16 dan 15 detik pertama menarik</label>
+    <label><input type="checkbox" class="ck"> Produk atau keranjang kuning sudah dipasang</label>
+    <label><input type="checkbox" class="ck"> Pengaturan konten komersial/berbayar di TikTok sudah diaktifkan</label>
+  </div>
+  <button class="btn main" id="add" type="button">Tambahkan ke rencana</button>
+  <div class="hint" id="why"></div>
+</section>
+</div>
+
+<aside>
+  <section class="card">
+    <h2>Rencana posting</h2>
+    <div id="list"></div>
+  </section>
+</aside>
+</div>
+<div class="cols ed" id="pEd" hidden>
+<div>
+<section class="card">
+  <h2>1. Pilih video mentah</h2>
+  <div class="drop" id="drop" tabindex="0" role="button">Klik atau seret video ke sini (MP4 atau MOV)</div>
+  <input type="file" id="file" accept="video/*" hidden>
+  <div class="err" id="err" role="alert"></div>
+</section>
+<section class="card">
+  <h2>2. Bingkai 9:16</h2>
+  <div class="lbl"><label for="pos">Geser posisi kiri-kanan</label></div>
+  <input type="range" id="pos" min="0" max="100" value="50">
+  <div class="lbl"><label for="zoom">Zoom</label><span id="zv">100%</span></div>
+  <input type="range" id="zoom" min="100" max="220" value="100">
+  <div class="hint">Video lebar akan dipotong tengahnya. Geser posisi agar produk tetap terlihat.</div>
+</section>
+<section class="card">
+  <h2>3. Pangkas</h2>
+  <div class="row">
+    <div><div class="lbl"><label for="st">Mulai (detik)</label></div><input type="number" id="st" min="0" step="0.1" value="0"></div>
+    <div><div class="lbl"><label for="en">Selesai (detik)</label></div><input type="number" id="en" min="0" step="0.1" value="0"></div>
+  </div>
+  <div class="acts"><button class="btn" id="setSt" type="button">Mulai = posisi sekarang</button><button class="btn" id="setEn" type="button">Selesai = posisi sekarang</button></div>
+  <div class="lbl"><label for="seek">Posisi pratinjau</label><span id="tv">0.0 dtk</span></div>
+  <input type="range" id="seek" min="0" max="0" step="0.1" value="0">
+</section>
+<section class="card">
+  <h2>4. Teks di layar</h2>
+  <div class="lbl"><label for="t1">Teks atas (hook)</label></div>
+  <input type="text" id="t1" maxlength="60" placeholder="Contoh: Racun TikTok yang worth it">
+  <div class="chk"><input type="checkbox" id="first" checked><label for="first">Teks atas hanya tampil 3 detik pertama</label></div>
+  <div class="lbl"><label for="t2">Teks bawah (ajakan)</label></div>
+  <input type="text" id="t2" maxlength="60" value="Cek keranjang kuning ya">
+</section>
+<section class="card">
+  <h2>5. Ekspor</h2>
+  <div class="acts">
+    <button class="btn" id="play" type="button" disabled>Putar pratinjau</button>
+    <button class="btn main" id="exp" type="button" disabled>Ekspor video</button>
+    <button class="btn" id="save" type="button" hidden>Simpan hasil</button>
+  </div>
+  <div class="hint" id="st2">Ekspor berjalan seiring durasi video. Biarkan tab ini tetap terbuka sampai selesai. Hasil berformat MP4 atau WebM, tergantung browser.</div>
+</section>
+<section class="card">
+  <h2>Edit cerdas dengan CapCut</h2>
+  <ol>
+    <li>Simpan hasil dari editor ini, lalu impor ke CapCut.</li>
+    <li>Cari fitur teks otomatis (auto captions) dan pilih bahasa Indonesia untuk membuat subtitle.</li>
+    <li>Rapikan gaya teks, tambahkan musik atau efek seperlunya. Nama dan posisi fitur bisa beda di tiap versi.</li>
+    <li>Ekspor, lalu kembali ke perencana untuk caption, tagar, dan jadwal.</li>
+  </ol>
+  <div class="hint">CapCut tidak bisa disambungkan langsung ke halaman ini, jadi bagian ini dikerjakan manual di aplikasinya.</div>
+</section>
+</div>
+<aside class="prev"><canvas id="cv" aria-label="Pratinjau video"></canvas></aside>
+</div>
+<video id="vid" playsinline preload="auto" hidden></video>
+<div class="cols" id="pVar" hidden style="grid-template-columns:minmax(0,1fr);max-width:900px">
+<section class="card">
+  <h2>1. Produk dan bahan variasi</h2>
+  <div class="lbl"><label for="vnama">Nama produk</label></div>
+  <input id="vnama" placeholder="Contoh: Serum wajah niacinamide">
+  <div class="lbl"><label for="vpoin">Keunggulan (satu per baris)</label></div>
+  <textarea id="vpoin" style="min-height:74px" placeholder="Ringan di kulit&#10;Cepat meresap&#10;Ukuran praktis"></textarea>
+  <div class="lbl"><label for="vcta">Ajakan utama</label></div>
+  <input id="vcta" value="Cek keranjang kuning di video ini ya.">
+  <div class="hint">Nama produk dan keunggulan terisi otomatis dari modul Naskah &amp; Jadwal saat modul ini dibuka.</div>
+</section>
+<section class="card">
+  <h2>2. Pilih unsur variasi</h2>
+  <div class="lbl">Hook (3 detik pertama)</div><div class="chips" id="vH"></div>
+  <div class="lbl">Sudut pandang</div><div class="chips" id="vS"></div>
+  <div class="lbl">Format video</div><div class="chips" id="vF"></div>
+  <div class="hint" id="vCombo"></div>
+</section>
+<section class="card">
+  <h2>3. Jumlah dan jadwal</h2>
+  <div class="row">
+    <div><div class="lbl"><label for="vN">Jumlah video</label></div><input type="number" id="vN" min="1" max="100" value="50"></div>
+    <div><div class="lbl"><label for="vPer">Video per hari</label></div><input type="number" id="vPer" min="1" max="5" value="3"></div>
+  </div>
+  <div class="lbl"><label for="vTgl">Mulai tanggal</label></div>
+  <input type="date" id="vTgl">
+  <button class="btn main" id="vGen" type="button">Buat variasi</button>
+  <div class="hint" id="vMsg">Disarankan 2 sampai 3 video per hari, dan rekam bahan yang benar-benar berbeda untuk tiap variasi.</div>
+</section>
+<section class="card">
+  <h2>Daftar variasi</h2>
+  <div class="chips" id="vFil"></div>
+  <div class="hint" id="vSum"></div>
+  <div class="acts" style="margin:10px 0">
+    <button class="btn" id="vAll" type="button">Tambahkan semua ke rencana</button>
+    <button class="btn" id="vCsv" type="button">Unduh CSV</button>
+    <button class="btn" id="vClr" type="button">Hapus semua</button>
+  </div>
+  <div id="vList"></div>
+</section>
+</div>
+</div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const $=id=>document.getElementById(id);
+const TAGS={
+ "Kecantikan":["#skincare","#perawatanwajah","#racuntiktok","#reviewjujur","#kecantikan"],
+ "Fashion":["#ootd","#fashionwanita","#outfitharian","#racuntiktok","#fashionmurah"],
+ "Gadget":["#gadget","#reviewgadget","#techtok","#racuntiktok","#worthit"],
+ "Rumah tangga":["#perabotrumah","#homeorganizer","#rumahrapi","#racuntiktok","#dapurminimalis"],
+ "Makanan":["#kulinerindonesia","#camilan","#reviewmakanan","#racuntiktok","#jajanan"]
+};
+const GAYA={
+ "Cerita":(p,h,l,c)=>`Dulu aku bingung cari ${p}. Sampai akhirnya coba yang ini.\n\n${l}\n\n${c}`,
+ "Review jujur":(p,h,l,c)=>`Review jujur ${p} setelah aku coba sendiri:\n\n${l}\n\nPilih sesuai kebutuhanmu ya.\n${c}`,
+ "Promo":(p,h,l,c)=>`Lagi ada promo ${p}! Cek dulu sebelum kehabisan.\n\n${l}\n\n${c}`
+};
+const JAMS=["07:00","12:00","19:00","21:00"];
+let gaya="Cerita",tags=new Set(),items=[],kat="Kecantikan";
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+const pad=n=>String(n).padStart(2,'0');
+const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const t0=new Date(Date.now()+864e5);$('tgl').value=dstr(t0);
+
+let tagList=["#racuntiktok","#fyp","#reviewjujur","#worthit","#rekomendasi"];
+function renderTags(){
+  const w=$('tags');w.innerHTML='';
+  tagList.forEach(t=>{
+    const b=document.createElement('button');b.type='button';b.textContent=t;b.className=tags.has(t)?'on':'';
+    b.onclick=()=>{tags.has(t)?tags.delete(t):tags.add(t);renderTags();updateCount()};w.appendChild(b)});
+  updateCount();
+}
+
+// gaya
+function renderGaya(){
+  const w=$('gaya');w.innerHTML='';
+  Object.keys(GAYA).forEach(g=>{const b=document.createElement('button');b.type='button';b.textContent=g;b.className=g===gaya?'on':'';
+    b.onclick=()=>{gaya=g;renderGaya()};w.appendChild(b)});
+}
+$('gen').onclick=()=>{
+  const p=$('nama').value.trim();if(!p){toast('Isi nama produk dulu');$('nama').focus();return}
+  const lines=$('poin').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,3);
+  const l=(lines.length?lines:["Praktis dipakai sehari-hari"]).map(s=>'✅ '+s).join('\n');
+  $('caption').value=GAYA[gaya](p,'',l,$('cta').value.trim());
+  updateCount();
+};
+function fullText(){const t=[...tags].join(' ');return $('caption').value.trim()+(t?'\n\n'+t:'')}
+function hashN(s){return (s.match(/#[\p{L}\p{N}_]+/gu)||[]).length}
+function updateCount(){
+  const n=fullText().length,c=$('cC');c.textContent=n+'/2200';c.classList.toggle('over',n>2200);
+  $('cH').textContent=hashN(fullText())+' tagar';
+}
+$('caption').oninput=updateCount;
+// jam cepat
+JAMS.forEach(j=>{const b=document.createElement('button');b.type='button';b.textContent=j;b.onclick=()=>{$('jam').value=j};$('jams').appendChild(b)});
+// simpan
+function load(){try{items=JSON.parse(localStorage.getItem('affplan')||'[]')}catch(e){items=[]}}
+function save(){try{localStorage.setItem('affplan',JSON.stringify(items))}catch(e){}}
+function copy(text){
+  const done=()=>toast('Berhasil disalin');
+  const fb=()=>{const a=document.createElement('textarea');a.value=text;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){toast('Gagal menyalin')}a.remove()};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(done,fb);else fb();
+}
+$('add').onclick=()=>{
+  const why=$('why');
+  const text=fullText();
+  if(!$('nama').value.trim()||!$('caption').value.trim()){why.textContent='Isi nama produk dan caption dulu.';return}
+  if(text.length>2200){why.textContent='Caption lebih dari 2200 karakter. Persingkat dulu.';return}
+  if(!$('tgl').value||!$('jam').value){why.textContent='Pilih tanggal dan jam posting.';return}
+  const at=new Date($('tgl').value+'T'+$('jam').value).getTime();
+  const miss=[...document.querySelectorAll('.ck')].filter(c=>!c.checked).length;
+  items.push({id:Date.now(),nama:$('nama').value.trim(),text,skrip:$('skrip').value.trim(),at,done:false});
+  save();render();
+  why.textContent=miss?('Ditambahkan. Masih ada '+miss+' item cek yang belum dicentang.'):'Ditambahkan ke rencana.';
+};
+function render(){
+  const L=$('list');L.innerHTML='';
+  if(!items.length){L.innerHTML='<div class="hint">Belum ada rencana. Lengkapi tiga langkah di sebelah kiri.</div>';return}
+  [...items].sort((a,b)=>a.at-b.at).forEach(it=>{
+    const due=!it.done&&it.at<=Date.now();
+    const d=document.createElement('div');d.className='item'+(due?' due':'')+(it.done?' done':'');
+    const b=document.createElement('b');b.textContent=it.nama;
+    const s=document.createElement('small');
+    s.textContent=new Date(it.at).toLocaleString('id-ID',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+(it.done?' · sudah diposting':due?' · waktunya posting':'');
+    const pre=document.createElement('pre');pre.textContent=it.text;
+    const a=document.createElement('div');a.className='acts';
+    const c=document.createElement('button');c.className='btn';c.textContent='Salin caption';c.onclick=()=>copy(it.text);
+    const k=document.createElement('button');k.className='btn';k.textContent=it.done?'Batalkan tanda':'Tandai sudah diposting';k.onclick=()=>{it.done=!it.done;save();render()};
+    const x=document.createElement('button');x.className='btn';x.textContent='Hapus';x.onclick=()=>{items=items.filter(i=>i!==it);save();render()};
+    if(it.skrip){const sc=document.createElement('button');sc.className='btn';sc.textContent='Salin skrip';sc.onclick=()=>copy(it.skrip);a.append(sc)}a.append(c,k,x);d.append(b,s,pre,a);L.appendChild(d);
+  });
+}
+let dur=15;
+function renderDur(){const w=$('dur');w.innerHTML='';[15,30].forEach(d=>{const b=document.createElement('button');b.type='button';b.textContent=d+' detik';b.className=d===dur?'on':'';b.onclick=()=>{dur=d;renderDur()};w.appendChild(b)})}
+function buildScript(){
+ const p=$('nama').value.trim(),h='',c=$('cta').value.trim();
+ const pts=$('poin').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,3);
+ const dflt=['Praktis dipakai sehari-hari','Mudah dipesan lewat keranjang kuning','Cocok untuk kebutuhan harian'];
+ while(pts.length<3)pts.push(dflt[pts.length]);
+ const hooks={'Cerita':'Kamu juga sering bingung cari '+p+'? Aku baru nemu yang pas.','Review jujur':'Aku coba '+p+' beberapa hari. Ini review jujurnya.','Promo':'Stop scroll! '+p+' lagi promo, cek dulu sebelum kehabisan.'};
+ const hook=hooks[gaya];
+ const harga=h?('Harganya '+h+'.'):'Cek harga terbarunya di keranjang kuning.';
+ const S=[];
+ if(dur===15){
+  S.push(['0-3','Close-up produk di tangan, teks besar di layar: '+p,hook]);
+  S.push(['3-8','Tunjukkan pemakaian nyata, fokus ke: '+pts[0],pts[0]+'. '+pts[1]+'.']);
+  S.push(['8-12','Close-up detail atau hasil produk',pts[2]+'. '+harga]);
+  S.push(['12-15','Tunjuk ke keranjang kuning, senyum ke kamera',c]);
+ }else{
+  S.push(['0-3','Close-up produk, teks besar di layar: '+p,hook]);
+  S.push(['3-8','Perlihatkan situasi sebelum memakai produk (cerita singkat)','Biasanya aku repot kalau soal ini.']);
+  S.push(['8-13','Keluarkan produk dari kemasan dan tunjukkan ke kamera','Terus aku coba '+p+'.']);
+  S.push(['13-18','Demo pemakaian, teks di layar: '+pts[0],pts[0]+'.']);
+  S.push(['18-22','Demo kedua atau close-up detail, teks di layar: '+pts[1],pts[1]+'.']);
+  S.push(['22-26','Perlihatkan hasil akhir, teks di layar: '+pts[2],pts[2]+'.']);
+  S.push(['26-30','Tunjuk ke keranjang kuning',harga+' '+c]);
+ }
+ return 'SKRIP '+dur+' DETIK · '+p+' · gaya '+gaya+'\n\n'+S.map((s,i)=>'Adegan '+(i+1)+' ('+s[0]+' dtk)\nVisual: '+s[1]+'\nUcapan: “'+s[2]+'”').join('\n\n')+'\n\nCatatan: ucapkan hanya yang benar-benar kamu rasakan dan alami, hindari klaim berlebihan.';
+}
+$('genS').onclick=()=>{if(!$('nama').value.trim()){toast('Isi nama produk dulu');$('nama').focus();return}$('skrip').value=buildScript()};
+$('cpS').onclick=()=>{if($('skrip').value.trim())copy($('skrip').value);else toast('Skrip masih kosong')};
+let sampleFn,ctl,lastQ='',poinEdited=false;
+$('poin').addEventListener('input',()=>{poinEdited=true});
+async function autoFill(force){
+  const q=$('nama').value.trim(),st=$('auto');
+  if(q.length<3){if(force){st.textContent='Isi nama produk dulu.'}return}
+  if(!force&&(q===lastQ||(poinEdited&&$('poin').value.trim())))return;
+  if(sampleFn===undefined){try{sampleFn=await claude.use('sample')}catch(e){sampleFn=null}}
+  if(!sampleFn){st.textContent='Isi otomatis tidak tersedia di sini. Tulis keunggulan secara manual.';return}
+  lastQ=q;if(ctl)ctl.abort();const my=ctl=new AbortController();
+  st.textContent='Mencari keunggulan produk...';
+  try{
+    const r=await sampleFn.json('Kamu membantu affiliate TikTok di Indonesia. Produk: '+JSON.stringify(q)+'. Tulis 3 keunggulan produk jenis ini dengan bahasa santai ala ngobrol sama teman di TikTok (pakai kata seperti kamu, banget, bikin; tidak kaku). Fokus ke manfaat yang dirasakan pembeli sehari-hari, bukan spesifikasi teknis. Maks. 8 kata tiap poin, mudah dipahami anak muda sampai ibu-ibu, jujur, tanpa klaim medis dan tanpa kata superlatif seperti terbaik atau nomor satu. Beri juga 5 tagar TikTok yang relevan dan umum dipakai. Balas hanya JSON: {"keunggulan":["a","b","c"],"tagar":["#a","#b","#c","#d","#e"]}',{signal:my.signal,modelTier:'quick'});
+    if(my.signal.aborted)return;
+    const k=(r.keunggulan||[]).map(String).slice(0,3);
+    if(k.length){$('poin').value=k.join('\n');poinEdited=false}
+    const tg=(r.tagar||[]).map(t=>'#'+String(t).replace(/[^\p{L}\p{N}_]/gu,'')).filter(t=>t.length>1).slice(0,5);
+    if(tg.length){tagList=[...new Set(tg.concat(['#fyp']))];tags.clear();renderTags()}
+    st.textContent='Dibuat otomatis. Periksa agar sesuai produk aslimu.';
+  }catch(e){
+    if(my.signal.aborted)return;
+    lastQ='';
+    st.textContent=(e&&e.code==='not_granted')?'Isi otomatis tidak diizinkan. Tulis keunggulan secara manual.':'Gagal membuat otomatis. Coba lagi atau tulis manual.';
+  }
+}
+$('nama').addEventListener('change',()=>autoFill(false));
+$('autoBtn').onclick=()=>autoFill(true);
+load();renderGaya();renderDur();renderTags();render();setInterval(render,60000);
+
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
+  ['pPlan','pEd','pVar'].forEach(id=>document.getElementById(id).hidden=(id!==b.dataset.t));
+  if(b.dataset.t==='pEd'){const t=document.getElementById('t1'),n=document.getElementById('nama').value.trim();if(t&&!t.value&&n)t.value=n}
+});
+</script>
+<script>(()=>{
+const $=id=>document.getElementById(id);
+const vid=$('vid'),cv=$('cv'),ctx=cv.getContext('2d'),W=540,H=960;
+cv.width=W;cv.height=H;
+let url=null,ac=null,dest=null,gain=null,rec=null,chunks=[],outBlob=null,outExt='webm',exporting=false;
+function fmt(n){return (Math.round(n*10)/10).toFixed(1)}
+function setFile(f){
+  $('err').textContent='';
+  if(!f)return;
+  if(!f.type.startsWith('video/')){$('err').textContent='File bukan video. Pilih MP4 atau MOV.';return}
+  if(url)URL.revokeObjectURL(url);
+  url=URL.createObjectURL(f);vid.src=url;vid.load();
+  $('drop').textContent=f.name;
+}
+vid.onloadedmetadata=()=>{
+  const d=vid.duration||0;
+  $('st').value=0;$('en').value=fmt(d);$('seek').max=d;$('seek').value=0;
+  $('play').disabled=false;$('exp').disabled=false;vid.currentTime=0;
+};
+$('drop').onclick=()=>$('file').click();
+$('drop').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('file').click()}};
+$('file').onchange=()=>setFile($('file').files[0]);
+['dragover','dragenter'].forEach(t=>$('drop').addEventListener(t,e=>{e.preventDefault();$('drop').classList.add('drag')}));
+['dragleave','drop'].forEach(t=>$('drop').addEventListener(t,e=>{e.preventDefault();$('drop').classList.remove('drag')}));
+$('drop').addEventListener('drop',e=>setFile(e.dataTransfer.files[0]));
+$('zoom').oninput=()=>{$('zv').textContent=$('zoom').value+'%'};
+$('seek').oninput=()=>{if(!exporting)vid.currentTime=+$('seek').value};
+$('setSt').onclick=()=>{$('st').value=fmt(vid.currentTime)};
+$('setEn').onclick=()=>{$('en').value=fmt(vid.currentTime)};
+function range(){const d=vid.duration||0;let s=Math.max(0,+$('st').value||0),e=Math.min(d,+$('en').value||d);if(e<=s)e=d;return[s,e]}
+function wrap(t,max){
+  const w=t.split(' '),L=[];let l='';
+  w.forEach(x=>{const n=l?l+' '+x:x;if(ctx.measureText(n).width>max&&l){L.push(l);l=x}else l=n});
+  if(l)L.push(l);return L;
+}
+function label(t,y){
+  if(!t.trim())return;
+  ctx.font='700 40px "Segoe UI",system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  const L=wrap(t.trim(),W-80),lh=50,bh=L.length*lh+24;
+  ctx.fillStyle='rgba(0,0,0,.55)';ctx.beginPath();ctx.roundRect(30,y-bh/2,W-60,bh,16);ctx.fill();
+  ctx.fillStyle='#fff';L.forEach((s,i)=>ctx.fillText(s,W/2,y-bh/2+12+lh/2+i*lh));
+}
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  if(vid.videoWidth){
+    const z=(+$('zoom').value)/100,s=Math.max(W/vid.videoWidth,H/vid.videoHeight)*z;
+    const dw=vid.videoWidth*s,dh=vid.videoHeight*s;
+    ctx.drawImage(vid,-(dw-W)*(+$('pos').value/100),-(dh-H)/2,dw,dh);
+    const [a,b]=range(),t=vid.currentTime;
+    if(!$('first').checked||t-a<3)label($('t1').value,170);
+    label($('t2').value,H-190);
+    if(!vid.paused&&t>=b){vid.pause();if(exporting)stopRec()}
+    if(!exporting){$('seek').value=t;$('tv').textContent=fmt(t)+' dtk'}
+  }else{
+    ctx.fillStyle='#9a9a9a';ctx.font='16px sans-serif';ctx.textAlign='center';ctx.fillText('Pilih video untuk melihat pratinjau',W/2,H/2);
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+$('play').onclick=()=>{
+  if(!vid.paused){vid.pause();$('play').textContent='Putar pratinjau';return}
+  const [a,b]=range();if(vid.currentTime<a||vid.currentTime>=b)vid.currentTime=a;
+  vid.play();$('play').textContent='Jeda';
+};
+vid.onpause=()=>{if(!exporting)$('play').textContent='Putar pratinjau'};
+function stopRec(){if(rec&&rec.state!=='inactive')rec.stop()}
+$('exp').onclick=async()=>{
+  if(!vid.src||exporting)return;
+  if(typeof MediaRecorder==='undefined'||!cv.captureStream){$('st2').textContent='Browser ini belum mendukung ekspor video. Coba Chrome atau Edge di laptop.';return}
+  const [a,b]=range();
+  exporting=true;$('exp').disabled=true;$('save').hidden=true;vid.pause();
+  try{
+    if(!ac){
+      ac=new (window.AudioContext||window.webkitAudioContext)();
+      const src=ac.createMediaElementSource(vid);dest=ac.createMediaStreamDestination();gain=ac.createGain();
+      src.connect(dest);src.connect(gain);gain.connect(ac.destination);
+    }
+    await ac.resume();gain.gain.value=0;
+    const stream=cv.captureStream(30);
+    dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+    const types=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+    const mt=types.find(t=>MediaRecorder.isTypeSupported(t))||'';
+    rec=new MediaRecorder(stream,mt?{mimeType:mt,videoBitsPerSecond:5e6}:{videoBitsPerSecond:5e6});
+    chunks=[];
+    rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+    rec.onstop=()=>{
+      clearInterval(tick);gain.gain.value=1;exporting=false;$('exp').disabled=false;
+      const type=rec.mimeType||'video/webm';outExt=type.includes('mp4')?'mp4':'webm';
+      outBlob=new Blob(chunks,{type});
+      $('st2').textContent='Selesai. Klik Simpan hasil untuk menyimpan video.';$('save').hidden=false;
+    };
+    if(Math.abs(vid.currentTime-a)>0.05){await new Promise(r=>{vid.onseeked=()=>{vid.onseeked=null;r()};vid.currentTime=a})}
+    rec.start(500);await vid.play();
+    var tick=setInterval(()=>{$('st2').textContent='Merekam... '+fmt(vid.currentTime-a)+' dari '+fmt(b-a)+' dtk. Jangan tutup tab ini.'},300);
+  }catch(e){
+    exporting=false;$('exp').disabled=false;if(gain)gain.gain.value=1;
+    $('st2').textContent='Ekspor gagal. Coba lagi, atau gunakan Chrome atau Edge di laptop.';
+  }
+};
+$('save').onclick=async()=>{
+  if(!outBlob)return;
+  let dl=null;try{dl=await claude.use('downloads')}catch(e){}
+  if(!dl){$('st2').textContent='Penyimpanan tidak tersedia di tampilan ini. Buka halaman lewat claude.ai.';return}
+  try{await dl.save({filename:'video-siap-posting.'+outExt,data:outBlob});$('st2').textContent='Video disimpan.'}
+  catch(e){$('st2').textContent=(e&&e.code==='declined')?'Penyimpanan dibatalkan.':'Gagal menyimpan. Coba lagi.'}
+};
+})();</script>
+<script>(()=>{
+const $=id=>document.getElementById(id);
+const HK={
+ 'Pertanyaan':p=>`Kamu juga lagi cari ${p}?`,
+ 'Cerita':p=>`Dulu aku bingung cari ${p}, sampai nemu ini.`,
+ 'Stop scroll':p=>`Stop scroll dulu, ini soal ${p}.`,
+ 'Unboxing':p=>`Unboxing ${p}, isinya apa aja ya?`,
+ 'Fakta singkat':p=>`Satu hal soal ${p} yang jarang dibahas.`,
+ 'Rekomendasi teman':p=>`Temanku nanya ${p} yang bagus, ini jawabanku.`
+};
+const SD={
+ 'Pemula':'Cocok buat kamu yang baru mulai',
+ 'Ibu-ibu':'Praktis buat kebutuhan harian di rumah',
+ 'Hemat budget':'Pas buat kamu yang mau hemat',
+ 'Hadiah':'Bisa jadi ide hadiah',
+ 'Perbandingan':'Aku bandingin sama yang biasa kupakai',
+ 'Pekerja kantoran':'Cocok buat yang sibuk kerja'
+};
+const FM={
+ 'Review jujur':'Pegang produk dan ceritakan pengalaman nyata.',
+ 'Demo pemakaian':'Close-up cara pakai, langkah demi langkah.',
+ 'Sebelum-sesudah':'Tunjukkan kondisi sebelum dan sesudah pakai (hanya hasil nyata).',
+ 'Tanya jawab':'Jawab satu pertanyaan umum penonton sambil menunjukkan produk.',
+ 'Tutorial singkat':'Tunjukkan tiga langkah singkat memakai produk.'
+};
+const ST=['Belum direkam','Sudah direkam','Sudah diposting'];
+const SLOTS=['07:00','12:00','15:00','19:00','21:00'];
+const sel={H:new Set(Object.keys(HK).slice(0,5)),S:new Set(Object.keys(SD).slice(0,5)),F:new Set(Object.keys(FM).slice(0,2))};
+let V=[],filt='Semua',clrArm=false;
+const pad=n=>String(n).padStart(2,'0');
+const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+$('vTgl').value=dstr(new Date(Date.now()+864e5));
+function msg(t){$('vMsg').textContent=t}
+function tst(t){if(typeof toast==='function')toast(t)}
+function cp(t){if(typeof copy==='function')copy(t)}
+function store(){try{localStorage.setItem('affvar',JSON.stringify(V))}catch(e){}}
+try{V=JSON.parse(localStorage.getItem('affvar')||'[]')}catch(e){V=[]}
+function chipSet(id,obj,set){
+  const w=$(id);w.innerHTML='';
+  Object.keys(obj).forEach(k=>{
+    const b=document.createElement('button');b.type='button';b.textContent=k;b.className=set.has(k)?'on':'';
+    b.onclick=()=>{set.has(k)?set.delete(k):set.add(k);chipSet(id,obj,set);combo()};w.appendChild(b);
+  });
+}
+function combo(){$('vCombo').textContent='Kombinasi tersedia: '+sel.H.size+' × '+sel.S.size+' × '+sel.F.size+' = '+(sel.H.size*sel.S.size*sel.F.size)+' variasi unik.'}
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hash(s){let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return h}
+function gen(){
+  const p=$('vnama').value.trim();
+  if(!p){msg('Isi nama produk dulu.');$('vnama').focus();return}
+  if(!sel.H.size||!sel.S.size||!sel.F.size){msg('Pilih minimal satu hook, satu sudut pandang, dan satu format.');return}
+  const per=Math.min(5,Math.max(1,+$('vPer').value||3));
+  let N=Math.max(1,Math.min(100,+$('vN').value||50));
+  const all=[];sel.H.forEach(h=>sel.S.forEach(s=>sel.F.forEach(f=>all.push({h,s,f}))));
+  const r=rng(hash(p));
+  for(let i=all.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[all[i],all[j]]=[all[j],all[i]]}
+  const note=N>all.length?('Jumlah dikurangi jadi '+all.length+' karena itu batas kombinasi unik. Tambah pilihan unsur untuk lebih banyak.'):'';
+  const pool=all.slice(0,Math.min(N,all.length)),seq=[];
+  while(pool.length){
+    const last=seq[seq.length-1];
+    let ix=pool.findIndex(x=>!last||(x.h!==last.h&&x.s!==last.s));
+    if(ix<0)ix=pool.findIndex(x=>!last||x.h!==last.h);
+    if(ix<0)ix=0;
+    seq.push(pool.splice(ix,1)[0]);
+  }
+  const pts=$('vpoin').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,3);
+  if(!pts.length)pts.push('Praktis dipakai sehari-hari');
+  const c0=$('vcta').value.trim()||'Cek keranjang kuning ya.';
+  const ctas=[c0,'Simpan dulu biar nggak lupa.','Kirim ke temanmu yang butuh ini.'];
+  const slots=SLOTS.slice(0,per).length?(per>=5?SLOTS:[['12:00'],['12:00','19:00'],['12:00','19:00','21:00'],['07:00','12:00','19:00','21:00']][per-1]):SLOTS;
+  const start=$('vTgl').value||dstr(new Date(Date.now()+864e5));
+  const tl=(typeof tagList!=='undefined')?tagList.slice(0,4).join(' '):'';
+  V=seq.map((c,i)=>{
+    const pick=[0,1].map(k=>pts[(i+k)%pts.length]).filter((x,ix,a)=>a.indexOf(x)===ix);
+    const hook=HK[c.h](p),cta=ctas[i%3];
+    const d=new Date(start+'T00:00');d.setDate(d.getDate()+Math.floor(i/per));
+    const at=new Date(dstr(d)+'T'+slots[i%per]).getTime();
+    return{id:i+1,h:c.h,s:c.s,f:c.f,at,status:0,added:false,
+      caption:hook+'\n\n'+SD[c.s]+'.\n'+pick.map(x=>'✅ '+x).join('\n')+'\n\n'+cta+(tl?'\n\n'+tl:''),
+      skrip:'VIDEO '+(i+1)+' · '+c.f+' · '+c.s+'\n[0-3 dtk] Hook: “'+hook+'”\n[3-12 dtk] '+FM[c.f]+' '+SD[c.s]+'. Sebut: '+pick.join('; ')+'.\n[12-15 dtk] Ajakan: “'+cta+'”\nCatatan: tampilkan hanya hasil dan pengalaman yang nyata.'};
+  });
+  store();render();msg('Dibuat '+V.length+' variasi. '+note);
+}
+function fmtd(t){return new Date(t).toLocaleString('id-ID',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+function render(){
+  const fw=$('vFil');fw.innerHTML='';
+  ['Semua'].concat(ST).forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=k;b.className=k===filt?'on':'';b.onclick=()=>{filt=k;render()};fw.appendChild(b)});
+  const cnt=ST.map((_,i)=>V.filter(v=>v.status===i).length);
+  $('vSum').textContent=V.length?('Total '+V.length+' · belum direkam '+cnt[0]+' · sudah direkam '+cnt[1]+' · sudah diposting '+cnt[2]):'Belum ada variasi. Lengkapi langkah 1 sampai 3, lalu klik Buat variasi.';
+  const L=$('vList');L.innerHTML='';
+  V.filter(v=>filt==='Semua'||ST[v.status]===filt).forEach(v=>{
+    const d=document.createElement('div');d.className='vrow'+(v.status===2?' ok':'');
+    const b=document.createElement('b');b.textContent='#'+v.id+' · '+v.h+' · '+v.s+' · '+v.f;
+    const sm=document.createElement('small');sm.textContent='Jadwal '+fmtd(v.at);
+    const pre=document.createElement('pre');pre.textContent=v.caption;
+    const a=document.createElement('div');a.className='acts';
+    const sl=document.createElement('select');sl.setAttribute('aria-label','Status video '+v.id);
+    ST.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=t;sl.appendChild(o)});
+    sl.value=v.status;sl.onchange=()=>{v.status=+sl.value;store();render()};
+    const c1=document.createElement('button');c1.className='btn';c1.type='button';c1.textContent='Salin caption';c1.onclick=()=>cp(v.caption);
+    const c2=document.createElement('button');c2.className='btn';c2.type='button';c2.textContent='Salin skrip';c2.onclick=()=>cp(v.skrip);
+    a.append(sl,c1,c2);d.append(b,sm,pre,a);L.appendChild(d);
+  });
+}
+$('vAll').onclick=()=>{
+  if(typeof items==='undefined'){tst('Modul rencana tidak tersedia');return}
+  const nama=$('vnama').value.trim();let n=0;
+  V.forEach(v=>{if(!v.added){items.push({id:Date.now()+v.id,nama:nama+' · Variasi '+v.id,text:v.caption,skrip:v.skrip,at:v.at,done:v.status===2});v.added=true;n++}});
+  if(n){save();render();store();tst(n+' variasi ditambahkan ke rencana')}else tst('Semua sudah ada di rencana');
+};
+$('vCsv').onclick=async()=>{
+  if(!V.length){tst('Belum ada variasi');return}
+  const q=x=>'"'+String(x).replace(/"/g,'""')+'"';
+  const rows=[['No','Hook','Sudut pandang','Format','Jadwal','Status','Caption','Skrip'].map(q).join(',')].concat(V.map(v=>[v.id,v.h,v.s,v.f,fmtd(v.at),ST[v.status],v.caption,v.skrip].map(q).join(',')));
+  let dl=null;try{dl=await claude.use('downloads')}catch(e){}
+  if(!dl){msg('Unduh tidak tersedia di tampilan ini. Buka halaman lewat claude.ai.');return}
+  try{await dl.save({filename:'variasi-konten.csv',data:'\ufeff'+rows.join('\n')});msg('CSV disimpan.')}
+  catch(e){msg((e&&e.code==='declined')?'Unduhan dibatalkan.':'Gagal mengunduh. Coba lagi.')}
+};
+$('vClr').onclick=()=>{
+  if(!clrArm){clrArm=true;$('vClr').textContent='Klik lagi untuk menghapus';setTimeout(()=>{clrArm=false;$('vClr').textContent='Hapus semua'},3000);return}
+  V=[];store();render();clrArm=false;$('vClr').textContent='Hapus semua';
+};
+$('vGen').onclick=gen;
+document.querySelector('[data-t="pVar"]').addEventListener('click',()=>{
+  const n=$('nama'),p=$('poin');
+  if(!$('vnama').value&&n.value.trim())$('vnama').value=n.value.trim();
+  if(!$('vpoin').value&&p.value.trim())$('vpoin').value=p.value.trim();
+});
+chipSet('vH',HK,sel.H);chipSet('vS',SD,sel.S);chipSet('vF',FM,sel.F);combo();render();
+})();</script>
+</body>
+</html>
