@@ -154,13 +154,16 @@ header .btn{background:#fff;color:#2a6b45;border-color:#fff}
   <h2>1. Info produk</h2>
   <div class="lbl"><label for="nama">Nama produk</label></div>
   <input id="nama" placeholder="Contoh: Serum wajah niacinamide">
-  <div class="hint">Caption, tagar, dan skrip langsung disusun dari nama produk.</div>
+  <div class="hint">Caption, tagar, hook, dan skrip langsung disusun dari nama produk.</div>
   <textarea id="poin" hidden></textarea>
   <input type="hidden" id="cta" value="Cek keranjang kuning di video ini ya.">
 </section>
 
 <section class="card">
   <h2>2. Caption</h2>
+  <div class="lbl">Jenis hook (3 detik pertama)</div><div class="chips" id="hookT"></div>
+  <div class="lbl"><label for="hook">Hook (kalimat pembuka caption dan skrip)</label></div>
+  <input id="hook" placeholder="Hook terisi otomatis dari nama produk">
   <div class="lbl">Gaya caption</div>
   <div class="chips" id="gaya"></div>
   <div class="lbl"><label for="caption">Caption</label><span class="count" id="cC">0/2200</span></div>
@@ -169,7 +172,8 @@ header .btn{background:#fff;color:#2a6b45;border-color:#fff}
 
   <div class="lbl" style="margin-top:18px">Tagar rekomendasi <span class="count" id="cH">0 tagar</span></div>
   <div class="chips" id="tags"></div>
-  <div class="hint">Cukup 3 sampai 5 tagar yang relevan. Tagar umum seperti #fyp boleh, tapi jangan berlebihan.</div>
+  <div class="acts" style="margin-top:10px"><button class="btn" id="tagAll" type="button">Tambahkan semua ke caption</button><button class="btn" id="tagCopy" type="button">Salin tagar</button></div>
+  <div class="hint">Klik tagar untuk memasukkan atau mengeluarkannya dari caption. Cukup 3 sampai 5 tagar yang relevan.</div>
 </section>
 
 <section class="card">
@@ -192,12 +196,6 @@ header .btn{background:#fff;color:#2a6b45;border-color:#fff}
   <div class="lbl">Pilihan jam cepat</div>
   <div class="chips" id="jams"></div>
   <div class="hint">Ini jam contoh saat orang umumnya aktif. Cek statistik di akun TikTok-mu untuk jam terbaik.</div>
-  <div class="chk" style="margin-top:14px">
-    <div class="lbl">Cek sebelum posting</div>
-    <label><input type="checkbox" class="ck"> Video berukuran vertikal 9:16 dan 15 detik pertama menarik</label>
-    <label><input type="checkbox" class="ck"> Produk atau keranjang kuning sudah dipasang</label>
-    <label><input type="checkbox" class="ck"> Pengaturan konten komersial/berbayar di TikTok sudah diaktifkan</label>
-  </div>
   <button class="btn main" id="add" type="button">Tambahkan ke rencana</button>
   <div class="hint" id="why"></div>
 </section>
@@ -328,7 +326,7 @@ function renderTags(){
   const w=$('tags');w.innerHTML='';
   tagList.forEach(t=>{
     const b=document.createElement('button');b.type='button';b.textContent=t;b.className=tags.has(t)?'on':'';
-    b.onclick=()=>{tags.has(t)?tags.delete(t):tags.add(t);renderTags();updateCount()};w.appendChild(b)});
+    b.onclick=()=>{tags.has(t)?tags.delete(t):tags.add(t);rewriteTags();renderTags()};w.appendChild(b)});
   updateCount();
 }
 
@@ -338,7 +336,9 @@ function renderGaya(){
   Object.keys(GAYA).forEach(g=>{const b=document.createElement('button');b.type='button';b.textContent=g;b.className=g===gaya?'on':'';
     b.onclick=()=>{gaya=g;renderGaya();if($('nama').value.trim().length>=3&&!(capEdited&&$('caption').value.trim())){linkProduct();makeCaption()}};w.appendChild(b)});
 }
-function fullText(){const t=[...tags].join(' ');return $('caption').value.trim()+(t?'\n\n'+t:'')}
+function capBody(){return $('caption').value.replace(/\n*(?:#[\p{L}\p{N}_]+[ \t]*)+\s*$/u,'').trimEnd()}
+function rewriteTags(){const b=capBody();$('caption').value=b+(tags.size?(b?'\n\n':'')+[...tags].join(' '):'');updateCount()}
+function fullText(){return $('caption').value.trim()}
 function hashN(s){return (s.match(/#[\p{L}\p{N}_]+/gu)||[]).length}
 function updateCount(){
   const n=fullText().length,c=$('cC');c.textContent=n+'/2200';c.classList.toggle('over',n>2200);
@@ -351,8 +351,8 @@ JAMS.forEach(j=>{const b=document.createElement('button');b.type='button';b.text
 function load(){try{items=JSON.parse(localStorage.getItem('affplan')||'[]')}catch(e){items=[]}}
 function clean(){return items.map(i=>{const c={...i};delete c.edit;return c})}
 function save(){try{localStorage.setItem('affplan',JSON.stringify(clean()))}catch(e){}if(window.pushKV)pushKV('affplan',clean())}
-function copy(text){
-  const done=()=>toast('Berhasil disalin');
+function copy(text,msg){
+  const done=()=>toast(msg||'Berhasil disalin');
   const fb=()=>{const a=document.createElement('textarea');a.value=text;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){toast('Gagal menyalin')}a.remove()};
   if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(done,fb);else fb();
 }
@@ -363,10 +363,9 @@ $('add').onclick=()=>{
   if(text.length>2200){why.textContent='Caption lebih dari 2200 karakter. Persingkat dulu.';return}
   if(!$('tgl').value||!$('jam').value){why.textContent='Pilih tanggal dan jam posting.';return}
   const at=new Date($('tgl').value+'T'+$('jam').value).getTime();
-  const miss=[...document.querySelectorAll('.ck')].filter(c=>!c.checked).length;
   items.push({id:Date.now(),nama:$('nama').value.trim(),text,skrip:$('skrip').value.trim(),at,done:false});
   save();render();
-  why.textContent=miss?('Ditambahkan. Masih ada '+miss+' item cek yang belum dicentang.'):'Ditambahkan. Lihat di modul Rencana Posting.';
+  why.textContent='Ditambahkan. Lihat di modul Rencana Posting.';
 };
 function editForm(it){
   const d=document.createElement('div');d.className='item';
@@ -410,8 +409,8 @@ function buildScript(){
  const pts=$('poin').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,3);
  const dflt=['Praktis dipakai sehari-hari','Mudah dipesan lewat keranjang kuning','Cocok untuk kebutuhan harian'];
  while(pts.length<3)pts.push(dflt[pts.length]);
- const hooks={'Cerita':'Kamu juga sering bingung cari '+p+'? Aku baru nemu yang pas.','Review jujur':'Aku coba '+p+' beberapa hari. Ini review jujurnya.','Promo':'Stop scroll! '+p+' lagi promo, cek dulu sebelum kehabisan.'};
- const hook=hooks[gaya];
+ const hook=$('hook').value.trim()||hookFor(hookType,p,curCat);
+ 
  const harga=h?('Harganya '+h+'.'):'Cek harga terbarunya di keranjang kuning.';
  const S=[];
  if(dur===15){
@@ -428,34 +427,59 @@ function buildScript(){
   S.push(['22-26','Perlihatkan hasil akhir, teks di layar: '+pts[2],pts[2]+'.']);
   S.push(['26-30','Tunjuk ke keranjang kuning',harga+' '+c]);
  }
- return 'SKRIP '+dur+' DETIK · '+p+' · gaya '+gaya+'\n\n'+S.map((s,i)=>'Adegan '+(i+1)+' ('+s[0]+' dtk)\nVisual: '+s[1]+'\nUcapan: “'+s[2]+'”').join('\n\n')+'\n\nCatatan: ucapkan hanya yang benar-benar kamu rasakan dan alami, hindari klaim berlebihan.';
+ return 'SKRIP '+dur+' DETIK · '+p+' · gaya '+gaya+'\n\n'+S.map((s,i)=>'Adegan '+(i+1)+' ('+s[0]+' dtk)'+(i===0?' \u00b7 HOOK':'')+'\nVisual: '+s[1]+'\nUcapan: “'+s[2]+'”').join('\n\n')+'\n\nCatatan: ucapkan hanya yang benar-benar kamu rasakan dan alami, hindari klaim berlebihan.';
 }
 $('genS').onclick=()=>{if(!$('nama').value.trim()){toast('Isi nama produk dulu');$('nama').focus();return}$('skrip').value=buildScript()};
 $('cpS').onclick=()=>{if($('skrip').value.trim())copy($('skrip').value);else toast('Skrip masih kosong')};
 const CAT=[
- {re:/serum|skincare|krim|sabun|facial|toner|sunscreen|lip|bedak|masker|parfum|lotion|shampo|kulit|wajah|rambut/i,pts:['Teksturnya ringan, nggak lengket','Gampang dipakai tiap hari','Bikin rutinitas perawatan lebih praktis'],tags:['#skincare','#perawatanwajah','#racuntiktok','#reviewjujur']},
- {re:/baju|kaos|kemeja|dress|hijab|jilbab|celana|rok|sepatu|sandal|tas|jaket|gamis|kerudung|outfit/i,pts:['Bahannya nyaman dipakai seharian','Modelnya gampang dipadupadankan','Cocok buat dipakai harian'],tags:['#ootd','#fashionwanita','#outfitharian','#racuntiktok']},
- {re:/hp|charger|kabel|earphone|headset|speaker|powerbank|mouse|keyboard|kamera|tripod|smartwatch|gadget/i,pts:['Praktis dipakai di mana aja','Gampang dipasang, nggak ribet','Cocok buat dipakai tiap hari'],tags:['#gadget','#reviewgadget','#techtok','#racuntiktok']},
- {re:/panci|wajan|rak|wadah|botol|kotak|organizer|dapur|piring|gelas|sapu|pel|kasur|bantal|sprei|lampu|rumah/i,pts:['Bikin rumah lebih rapi','Gampang dipakai dan dibersihkan','Ukurannya pas, nggak makan tempat'],tags:['#perabotrumah','#homeorganizer','#rumahrapi','#racuntiktok']},
- {re:/kopi|teh|snack|keripik|coklat|cokelat|madu|susu|sambal|bumbu|kue|roti|minuman|makanan|camilan|jajan/i,pts:['Rasanya enak buat teman santai','Praktis dibawa ke mana aja','Cocok buat stok di rumah'],tags:['#kulinerindonesia','#camilan','#reviewmakanan','#racuntiktok']}
+ {re:/sleeping bag|sleepingbag|tenda|camping|hiking|carrier|trekking|outdoor|gunung|matras|hammock|ultralight/i,pts:['Ringan, nggak bikin tas berat','Bisa dilipat kecil, hemat tempat','Nyaman buat tidur di tenda'],tags:['#camping','#outdoor','#sleepingbag','#naikgunung','#racuntiktok'],prob:'Capek bawa perlengkapan tidur yang berat pas naik gunung?'},
+ {re:/serum|skincare|krim|sabun|facial|toner|sunscreen|lip|bedak|masker|parfum|lotion|shampo|kulit|wajah|rambut/i,pts:['Teksturnya ringan, nggak lengket','Gampang dipakai tiap hari','Bikin rutinitas perawatan lebih praktis'],tags:['#skincare','#perawatanwajah','#racuntiktok','#reviewjujur'],prob:'Bingung milih skincare yang nggak ribet dipakai?'},
+ {re:/baju|kaos|kemeja|dress|hijab|jilbab|celana|rok|sepatu|sandal|tas|jaket|gamis|kerudung|outfit/i,pts:['Bahannya nyaman dipakai seharian','Modelnya gampang dipadupadankan','Cocok buat dipakai harian'],tags:['#ootd','#fashionwanita','#outfitharian','#racuntiktok'],prob:'Bingung mau pakai apa tiap hari?'},
+ {re:/hp|charger|kabel|earphone|headset|speaker|powerbank|mouse|keyboard|kamera|tripod|smartwatch|gadget/i,pts:['Praktis dipakai di mana aja','Gampang dipasang, nggak ribet','Cocok buat dipakai tiap hari'],tags:['#gadget','#reviewgadget','#techtok','#racuntiktok'],prob:'Males ribet sama gadget yang susah dipakai?'},
+ {re:/panci|wajan|rak|wadah|botol|kotak|organizer|dapur|piring|gelas|sapu|pel|kasur|bantal|sprei|lampu|rumah/i,pts:['Bikin rumah lebih rapi','Gampang dipakai dan dibersihkan','Ukurannya pas, nggak makan tempat'],tags:['#perabotrumah','#homeorganizer','#rumahrapi','#racuntiktok'],prob:'Rumah cepat berantakan padahal baru dirapikan?'},
+ {re:/kopi|teh|snack|keripik|coklat|cokelat|madu|susu|sambal|bumbu|kue|roti|minuman|makanan|camilan|jajan/i,pts:['Rasanya enak buat teman santai','Praktis dibawa ke mana aja','Cocok buat stok di rumah'],tags:['#kulinerindonesia','#camilan','#reviewmakanan','#racuntiktok'],prob:'Lagi cari camilan atau minuman buat teman santai?'}
 ];
-const DEF={pts:['Praktis dipakai sehari-hari','Gampang dipakai, nggak ribet','Cocok buat kebutuhan harian'],tags:['#racuntiktok','#reviewjujur','#worthit','#rekomendasi']};
-let capEdited=false;
+const DEF={pts:['Praktis dipakai sehari-hari','Gampang dipakai, nggak ribet','Cocok buat kebutuhan harian'],tags:['#racuntiktok','#reviewjujur','#worthit','#rekomendasi'],prob:null};
+let capEdited=false,hookEdited=false,hookType='Masalah',curCat=DEF;
 $('caption').addEventListener('input',()=>{capEdited=true});
+$('hook').addEventListener('input',()=>{hookEdited=true;if(!(capEdited&&$('caption').value.trim())&&$('nama').value.trim().length>=3)makeCaption()});
+const HOOKS=['Masalah','Penasaran','Hasil dulu','Cerita','Promo'];
+function hookFor(t,p,c){
+  if(t==='Masalah')return c.prob||('Pernah bingung cari '+p+' yang pas?');
+  if(t==='Penasaran')return 'Aku kira '+p+' ini biasa aja, ternyata begini.';
+  if(t==='Hasil dulu')return 'Ini hasilnya setelah aku coba '+p+'.';
+  if(t==='Cerita')return 'Dulu aku bingung cari '+p+', sampai akhirnya nemu yang ini.';
+  return 'Stop scroll! '+p+' lagi promo, cek dulu sebelum kehabisan.';
+}
+function setHook(){const p=$('nama').value.trim();if(p.length>=3&&!hookEdited)$('hook').value=hookFor(hookType,p,curCat)}
+function renderHookT(){
+  const w=$('hookT');w.innerHTML='';
+  HOOKS.forEach(t=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.className=t===hookType?'on':'';
+    b.onclick=()=>{hookType=t;hookEdited=false;renderHookT();if($('nama').value.trim().length>=3){setHook();if(!(capEdited&&$('caption').value.trim()))makeCaption()}};w.appendChild(b)});
+}
 function linkProduct(){
   const q=$('nama').value.trim();
   if(q.length<3)return false;
-  const c=CAT.find(x=>x.re.test(q))||DEF;
-  $('poin').value=c.pts.join('\n');
-  tagList=[...new Set(c.tags.concat(['#fyp']))];tags.clear();renderTags();
+  curCat=CAT.find(x=>x.re.test(q))||DEF;
+  $('poin').value=curCat.pts.join('\n');
+  tagList=[...new Set(curCat.tags.concat(['#fyp']))];
+  setHook();
   return true;
 }
+const OPEN={'Cerita':'Yang aku suka:','Review jujur':'Review jujur setelah aku coba sendiri:','Promo':'Kenapa layak dilirik:'};
+const CLOSE={'Cerita':'Pilih sesuai kebutuhanmu ya.','Review jujur':'Pilih sesuai kebutuhanmu ya.','Promo':'Cek dulu sebelum kehabisan.'};
+const QS=['Kamu sudah pernah coba?','Kamu pakai yang mana?','Menurut kamu gimana?','Ada yang punya pengalaman sama? Cerita di komentar ya.'];
 function makeCaption(){
   const p=$('nama').value.trim();
   const lines=$('poin').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,3);
-  const l=(lines.length?lines:["Praktis dipakai sehari-hari"]).map(s=>'\u2705 '+s).join('\n');
-  $('caption').value=GAYA[gaya](p,'',l,$('cta').value.trim());
-  updateCount();
+  const l=(lines.length?lines:['Praktis dipakai sehari-hari']).map(s=>'\u2705 '+s).join('\n');
+  const hook=$('hook').value.trim()||hookFor(hookType,p,curCat);
+  let h=0;for(const ch of p)h=(h*31+ch.charCodeAt(0))>>>0;
+  const parts=[hook];
+  parts.push(OPEN[gaya]+'\n'+l,CLOSE[gaya],QS[h%QS.length]+'\n'+$('cta').value.trim());
+  tags.clear();tagList.slice(0,5).forEach(t=>tags.add(t));
+  $('caption').value=parts.join('\n\n')+(tags.size?'\n\n'+[...tags].join(' '):'');
+  renderTags();updateCount();
 }
 $('gen').onclick=()=>{
   if(!$('nama').value.trim()){toast('Isi nama produk dulu');$('nama').focus();return}
@@ -467,7 +491,9 @@ $('nama').addEventListener('input',()=>{clearTimeout(ntm);ntm=setTimeout(()=>{
   if(capEdited&&$('caption').value.trim())return;
   linkProduct();makeCaption();
 },500)});
-load();renderGaya();renderDur();renderTags();render();setInterval(()=>{if(!items.some(i=>i.edit))render()},60000);
+$('tagAll').onclick=()=>{tagList.forEach(t=>tags.add(t));rewriteTags();renderTags();toast('Semua tagar masuk ke caption')};
+$('tagCopy').onclick=()=>{const list=tags.size?[...tags]:tagList.slice(0,5);copy(list.join(' '),'Tagar disalin')};
+load();renderGaya();renderDur();renderHookT();renderTags();render();setInterval(()=>{if(!items.some(i=>i.edit))render()},60000);
 
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
@@ -590,7 +616,9 @@ const HK={
  'Stop scroll':p=>`Stop scroll dulu, ini soal ${p}.`,
  'Unboxing':p=>`Unboxing ${p}, isinya apa aja ya?`,
  'Fakta singkat':p=>`Satu hal soal ${p} yang jarang dibahas.`,
- 'Rekomendasi teman':p=>`Temanku nanya ${p} yang bagus, ini jawabanku.`
+ 'Rekomendasi teman':p=>`Temanku nanya ${p} yang bagus, ini jawabanku.`,
+ 'Hasil dulu':p=>`Ini hasilnya setelah aku coba ${p}.`,
+ 'Penasaran':p=>`Aku kira ${p} ini biasa aja, ternyata begini.`
 };
 const SD={
  'Pemula':'Cocok buat kamu yang baru mulai',
