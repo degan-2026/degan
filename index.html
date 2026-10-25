@@ -669,7 +669,15 @@ async function enter(session){
   sessionStorage.removeItem('pulled');
   $('lg').hidden=true;document.body.classList.remove('locked');$('out').hidden=false;
 }
+let loggingOut=false;
 function leave(){uid=null;KEYS.forEach(k=>localStorage.removeItem(k))}
+async function doLogout(){
+  loggingOut=true;leave();
+  try{await SB.auth.signOut({scope:'local'})}catch(e){}
+  Object.keys(localStorage).filter(k=>k.indexOf('sb-')===0).forEach(k=>localStorage.removeItem(k));
+  sessionStorage.removeItem('pulled');
+  location.replace(location.pathname);
+}
 $('lgf').onsubmit=async e=>{
   e.preventDefault();const b=$('lgb');b.disabled=true;$('lge').textContent='';
   const {data,error}=await SB.auth.signInWithPassword({email:$('lem').value.trim().toLowerCase().replace(/[^a-z0-9._-]/g,'')+'@degan.example.com',password:$('lpw').value});
@@ -677,9 +685,14 @@ $('lgf').onsubmit=async e=>{
   if(error||!data.session){$('lge').textContent='Nama pengguna atau kata sandi salah.';return}
   $('lpw').value='';enter(data.session);
 };
-$('out').onclick=async()=>{await SB.auth.signOut();leave();location.reload()};
-SB.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'&&uid){leave();location.reload()}});
-SB.auth.getSession().then(({data})=>{if(data.session)enter(data.session)});
+$('out').onclick=doLogout;
+SB.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'&&uid&&!loggingOut)doLogout()});
+SB.auth.getSession().then(async({data})=>{
+  if(!data.session)return;
+  const u=await SB.auth.getUser();
+  if(u.error||!u.data.user){await doLogout();return}
+  enter(data.session);
+});
 })();</script>
 </body>
 </html>
