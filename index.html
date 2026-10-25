@@ -88,7 +88,7 @@ header p{margin:2px 0 0;font:italic 500 16px/1.2 "Cormorant Garamond",Georgia,se
 <div id="lg" role="dialog" aria-label="Masuk"><form id="lgf" class="lgc" novalidate>
 <img id="lgi" alt="Logo DEGAN" width="64" height="64">
 <div class="lgt">DEGAN</div><div class="lgs">Dashboard Efektif Group Affiliate Nunik</div>
-<label for="lem">Email</label><input id="lem" type="email" autocomplete="username" required>
+<label for="lem">Nama pengguna</label><input id="lem" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
 <label for="lpw">Kata sandi</label><input id="lpw" type="password" autocomplete="current-password" required>
 <button class="btn main" type="submit" id="lgb">Masuk</button>
 <div class="err" id="lge" role="alert"></div>
@@ -672,9 +672,9 @@ async function enter(session){
 function leave(){uid=null;KEYS.forEach(k=>localStorage.removeItem(k))}
 $('lgf').onsubmit=async e=>{
   e.preventDefault();const b=$('lgb');b.disabled=true;$('lge').textContent='';
-  const {data,error}=await SB.auth.signInWithPassword({email:$('lem').value.trim(),password:$('lpw').value});
+  const {data,error}=await SB.auth.signInWithPassword({email:$('lem').value.trim().toLowerCase().replace(/[^a-z0-9._-]/g,'')+'@degan.example.com',password:$('lpw').value});
   b.disabled=false;
-  if(error||!data.session){$('lge').textContent='Email atau kata sandi salah.';return}
+  if(error||!data.session){$('lge').textContent='Nama pengguna atau kata sandi salah.';return}
   $('lpw').value='';enter(data.session);
 };
 $('out').onclick=async()=>{await SB.auth.signOut();leave();location.reload()};
